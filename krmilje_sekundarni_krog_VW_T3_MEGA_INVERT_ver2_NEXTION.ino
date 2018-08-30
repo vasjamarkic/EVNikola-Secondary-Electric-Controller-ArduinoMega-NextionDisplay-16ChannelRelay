@@ -20,7 +20,8 @@ SWITCH DIP                           BUTTONS
 [8 ] 22 - handbrake
 ]9 ] 37 - backward drive light
 [10] 23 - cabin switch light  ???
-
+30.8.2018 changed the obsolete SOC to DIM trimmer use for dimming the nextion display, 
+uses progress bar j13.
 Author: Vasja Markič           
 */
 #include <Wire.h>
@@ -82,7 +83,7 @@ const int Wiper2_Switch = 11;
 const int Wiper1Alternate_Switch = 9;
 const int ChargeMode_input = 8;           // microswitch detects when AC plug cable is IN
 const int Battery12V_input = A0;          // analog input, resistor divider 1:15 ratio with capacitor
-const int SOC_input = A1;                 // analog input from BMS
+const int DIM_input = A1;                 // analog input from BMS
 
 // ventilation via PWM power module
 
@@ -110,8 +111,8 @@ bool Wiper1_Switch_ON = true;
 bool Wiper2_Switch_ON = true;
 bool FogLight_Switch_ON = true;
 bool ChargeMode_ON = false;       // if we plug the AC charging
-long SOC_Battery_Value = 0;      // initial value of the state of charge, from 0 to 1023  (measures 0 ÷ 5 V)
-long SOC;                        // voltage transformed to int from 0 ... 100
+long DIM_Value = 0;      // initial value of the state of charge, from 0 to 1023  (measures 0 ÷ 5 V)
+long DIM;                        // voltage transformed to int from 0 ... 100
 unsigned int Battery12V_Value = 0;    // initial value od digital value of the 12 V battery (0 ÷ 1023) 
 float Battery12V;
 unsigned int Battery12V_treshold = 11;   // set the min. voltage for signaling battery low voltage on display
@@ -135,6 +136,7 @@ NexProgressBar j9 = NexProgressBar(0, 11, "j9");   // AC recharge lightning
 NexProgressBar j10 = NexProgressBar(0, 12, "j10");   // "Nicola" text diplay or "Charging" text display
 NexProgressBar j11 = NexProgressBar(0, 14, "j11");    // Displaying the prog. bar value of SOC, "0" empty, "100" full.
 NexProgressBar j12 = NexProgressBar(0, 15, "j12");    // icon charging inside the van
+NexPtogressBar j13 = NexProgressBar(0, 16, "j13");
 
 // Declaration of touch events: (temp. the list is empty)
 NexTouch *nex_listen_list[] =
@@ -192,8 +194,7 @@ void setup() {
   pinMode(Wiper2_Switch, INPUT);  // speed 2 
   pinMode(ChargeMode_input, INPUT); // if the AC cable is pludged
   pinMode(Battery12V_input, INPUT); // analog measurment of voltage 0 ÷ 12 V - wire a voltage divider with resistors (or Zener)!
-  pinMode(SOC_input, INPUT);    // testing with potneciometer, 0 ÷ 5 V, state-of-charge
-}
+  pinMode(DIM_input, INPUT);    // dimming with trimmer, 0 - 5 V LCD brightness
 
 //main loop/program :
 void loop() {  
@@ -366,12 +367,15 @@ void readwrite() {
     digitalWrite(Wiper2, LOW);
     }
   
-// display the SOC - reading SOC_Battery_value, using temp. potenciometer on A0 (or connect to Arduino NANO while measures SOC!)
-  //SOC = SOC_Battery_Value*100/1023;
+// dim the display - reading DIM_value, using potenciometer on A0
+// On nextion HMI file the page0 postinitialize event has code: j13.value=dim
+  DIM = DIM_Value*100/1023;
+  j13.setValue(DIM);
+// Displaying SOC graphic via wire.h on NANO 
   j11.setValue(SOC2);    // when aquiring data from Arduino NANO, change to SOC2! 
  
-//  Serial.println(SOC);         // for diagnostic!
-//  Serial.println(SOC_Battery_Value);
+//  Serial.println(DIM);         // for diagnostic!
+//  Serial.println(DIM_Value);
 
 /* display of low 12v battery icon, if voltage is lower than 11 V reading from A11
   0 - ~17 V voltmeter

@@ -132,7 +132,7 @@ NexProgressBar j9 = NexProgressBar(0, 11, "j9");   // AC recharge lightning
 NexProgressBar j10 = NexProgressBar(0, 12, "j10");   // "Nicola" text diplay or "Charging" text display
 NexProgressBar j11 = NexProgressBar(0, 14, "j11");    // Displaying the prog. bar value of SOC, "0" empty, "100" full.
 NexProgressBar j12 = NexProgressBar(0, 15, "j12");    // icon charging inside the van
-NexPtogressBar j13 = NexProgressBar(0, 16, "j13");
+NexProgressBar j13 = NexProgressBar(0, 16, "j13");
 
 // Declaration of touch events: (temp. the list is empty)
 NexTouch *nex_listen_list[] =
@@ -197,7 +197,7 @@ void setup() {
   pinMode(DIM_input, INPUT);    // dimming with trimmer, 0 - 5V (1023) LCD brightness    (ANALOG)
   pinMode(BatteryPackVolt_input, INPUT);   // range from 3.44V (703) to 5V (1023)   (ANALOG)
   pinMode(Temperature_input, INPUT);    // from 0V (0) to 5V (1023) via PTK   (ANALOG)
-
+}
 //main loop/program :
 void loop() {  
   readwrite();      // reading the input states

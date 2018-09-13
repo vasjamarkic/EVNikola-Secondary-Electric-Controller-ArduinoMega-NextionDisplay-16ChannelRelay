@@ -10,7 +10,11 @@ The Relay module has to be connected to power a 10 seconds after the key power t
 Dimming the display with tuch function (Nextion code)
 Dimming the dash lights with potentimeter on dashboard SWITCH1
 11.9. 2018 fix the code (I/O pins) for MEga PRO CH340G. PINS from 2 ÷ 13 are PWM. 
-13.9.2018 Upddated the pin numbers for the Shield (fritzing PCB sheme)
+13.9.2018 Upddated the pin numbers for the Shield (fritzing PCB sheme), emergency lights will turn with both Relay 4 and 5 
+via 103 131 topran 12V flashing relay: pins - 49 (+12V), 49a (LOAD), 31 (GND)
+Added MotorCover microswitch Input and Motor compartment light (Output)
+Relay 12 is free, 
+
 Author: Vasja Markič           
 */
 #include <Wire.h>
@@ -30,8 +34,8 @@ Author: Vasja Markič
 const int ParkLight =  22;            // relay 1 - 2x front parklights, 2x back parklights, all dash lights
 const int DayLight = 18;              // relay 2 - 2x front daylights H4
 const int LongLight = 14;             // relay 3 - 2x front longlights H4
-const int TurnLeft = 11;              // relay 4 - 3x left turning lights (via swtching relay CF14 flasher unit)
-const int TurnRight = 12;             // relay 5 - 3x right turning lights (via switcging relay CF14 flasher unit)
+const int TurnLeft = 11;              // relay 4 - 3x left turning lights (via flashing relay 103 131)
+const int TurnRight = 12;             // relay 5 - 3x right turning lights (via flashing relay 103 131) (both turns on via SWITCH3)
 const int StopLight = 15;             // relay 6 - 2x back stoplights
 const int Horn = 19;                 // relay 7 - to horn acuator
 const int DefrostWindow = 23;        // relay 8 - to rear window defrost
@@ -39,7 +43,7 @@ const int BackwardLight = 25;        // relay 9 - to rear backlight(s)
 const int WiperRear = 27;           // relay 10 - motorpump rear AND motor wiper rear
 // 21, 20 reserved for I2C comm with NANO soc-meter
 const int FogLight = 29;             // relay 11 - 2x front foglights
-const int EmergenceLight = 31;       // relay 12 --> to 6x external blinkers AND SWITCH3 (dash) (via CF14) - USE DIODE!
+const int MotorLight = 31;       // relay 12 
 // 17, 16 reserved for Tx2 and Rx2 comm with Nextion display
 const int WindowWater = 30;          // relay 13 - motorpump front
 const int Wiper1Alternate = 28;      // relay 14 - via auto wiper intermittent relay to motor wiper front, timer
@@ -57,26 +61,26 @@ const int DayLight_Switch = 45;       // SWITCH1 (on dash)      **+
 const int LongLight_Switch = 41;      // WHEEL SWITCH1          ****+  --> 4x signal wires and 1x 5V supply
 const int TurnLeft_Switch = 39;       // WHEEL SWITCH1          ****+
 const int TurnRight_Switch = 37;      // WHEEL SWITCH1          ****+
-const int StopLight_switch = 44;      // MICROSWITCH4 (on the brake foot)    *+
-const int EmergenceLight_Switch = 46;  //SWITCH3 (on dash)              *+
-const int Horn_Switch = 35;            // WHEEL SWITCH???1??     ****+
+const int Horn_Switch = 35;           // WHEEL SWITCH???1??    ****+
+const int FogLight_Switch = 53;        //SWITCH2 (extra added on dash)   *+
+const int EmergenceLight_Switch = 46;  //SWITCH3 (on dash)                   *+
 const int DefrostWindow_Switch = 47;   //SWITCH4 (on dash)      *+
 const int BackwardLight_Switch = 48;   // two-pole switch (2pSW) to change the drive direction! (on dash, added extra!)   *+
-const int WiperRear_Switch = 34;      // WHEEL SWITCH2          *****+
 const int DoorOpen_Switch = 50;        // MICROSWITCH1 (4 x doors)    *+
 const int Handbrake_Switch = 52;       // MICROSWITCH2 (handbrake)    *+
-const int FogLight_Switch = 53;        // SWITCH2 (extra added on dash)   *+
+const int ChargeMode_input = 51;       // MICROSWITCH3 (when AC plug cable is IN, rezervoir tank)   *+
+const int StopLight_switch = 44;      // MICROSWITCH4 (on the brake foot)    *+
 const int WindowWater_Switch = 36;      // WHEEL SWITCH2      *****+
 const int Wiper1_Switch = 38;           // WHEEL SWITCH2      *****+
 const int Wiper2_Switch = 40;           // WHEEL SWITCH2      *****+
-const int Wiper1Alternate_Switch = 42;    // WHEEL SWITCH2      *****+
-const int ChargeMode_input = 51;           // MICROSWITCH3 (when AC plug cable is IN, rezervoir tank)   *+
-const int Reserve_input1 = 43;         // REZ *+
+const int Wiper1Alternate_Switch = 42;  // WHEEL SWITCH2      *****+
+const int WiperRear_Switch = 34;      // WHEEL SWITCH2        *****+
+const int MotorCover_Switch = 43;         // MICROSWITCH5 Motor Cover open/closed *+
 // analoge INPUTS (from A0 ÷ A15)
-const int Battery12V_input = A0;          // analog input, resistor divider 1:15 ratio with capacitor   *-+
-const int DIM_input = A1;                 // potentiometer on SWITCH1, for dimming the dash Lights    ***-+
-const int BatteryPackVolt_input = A2;     // analog input, 86V ÷ 125V range via resistor divider R1 = 12K, R2 = 500E --> input range 3.44V ÷ 5V   ???? (common GND???)
-const int Temperature_input = A3;         // depends on the PTK probe!   ???
+const int Battery12V_input = A1;          // analog input, resistor divider 1:15 ratio with capacitor   *-+
+const int DIM_input = A0;                 // potentiometer on SWITCH1, for dimming the dash Lights    ***-+
+const int BatteryPackVolt_input = A3;     // analog input, 86V ÷ 125V range via resistor divider R1 = 12K, R2 = 500E --> input range 3.44V ÷ 5V   ???? (GND NOT common!)
+const int Temperature_input = A2;         // depends on the PTK probe!   ???
 
 // ventilation via PWM power module
 
@@ -129,11 +133,11 @@ NexProgressBar j5 = NexProgressBar(0, 6, "j5");   //  EmergenceLight
 NexProgressBar j6 = NexProgressBar(0, 7, "j6");   //  handbrake
 NexProgressBar j7 = NexProgressBar(0, 8, "j7");   //  batery low
 NexProgressBar j8 = NexProgressBar(0, 9, "j8");   //  defrozing window
-NexProgressBar j9 = NexProgressBar(0, 11, "j9");   // AC recharge lightning
-NexProgressBar j10 = NexProgressBar(0, 12, "j10");   // "Nicola" text diplay or "Charging" text display
+NexProgressBar j9 = NexProgressBar(0, 11, "j9");      // AC recharge lightning
+NexProgressBar j10 = NexProgressBar(0, 12, "j10");    // "Nicola" text diplay or "Charging" text display
 NexProgressBar j11 = NexProgressBar(0, 14, "j11");    // Displaying the prog. bar value of SOC, "0" empty, "100" full.
 NexProgressBar j12 = NexProgressBar(0, 15, "j12");    // icon charging inside the van
-NexProgressBar j13 = NexProgressBar(0, 16, "j13");
+NexProgressBar j13 = NexProgressBar(0, 16, "j13");    // slider of Dimming brightness of dashboard lights
 
 // Declaration of touch events: (temp. the list is empty)
 NexTouch *nex_listen_list[] =
@@ -163,9 +167,9 @@ void setup() {
   pinMode(Horn, OUTPUT);               // relay 7: 1 x Horn
   pinMode(DefrostWindow, OUTPUT);       // relay 8
   pinMode(BackwardLight, OUTPUT);       // relay 9
-  pinMode(WiperRear, OUTPUT);          // relay 10: back wiper
+  pinMode(WiperRear, OUTPUT);          // relay 10: back wiper and watering
   pinMode(FogLight, OUTPUT);            // relay 11
-  pinMode(EmergenceLight, OUTPUT);      // relay 12 - to all flashes!
+  pinMode(MotorLight, OUTPUT);      // relay 12 Lights in motor compartment
   pinMode(WindowWater, OUTPUT);         // relay 13 motor of water pump front
   pinMode(Wiper1Alternate, OUTPUT);     // relay 14
   pinMode(Wiper1, OUTPUT);              // relay 15
@@ -194,9 +198,9 @@ void setup() {
   pinMode(Wiper1_Switch, INPUT);  // speed 1
   pinMode(Wiper2_Switch, INPUT);  // speed 2 
   pinMode(ChargeMode_input, INPUT); // if the AC cable is pludged
-  pinMode(Battery12V_input, INPUT); // analog measurment of voltage 0 ÷ 12 V - wire a voltage divider with resistors
-  pinMode(DIM_input, INPUT);    // dimming with trimmer, 0 - 5V (1023) LCD brightness    (ANALOG)
-  pinMode(BatteryPackVolt_input, INPUT);   // range from 3.44V (703) to 5V (1023)   (ANALOG)
+  pinMode(Battery12V_input, INPUT); // analog measurment of voltage 0 ÷ 12 V - wire a voltage divider with resistors 81.3k + (8.25k || 100nF)
+  pinMode(DIM_input, INPUT);    // dimming with trimmer on SWITCH1 (lights), 0 - 5V (1023) LCD brightness    (ANALOG)
+  pinMode(BatteryPackVolt_input, INPUT);   // range from 3.44V (703) to 5V (1023)   (ANALOG)  // GNDs must be separated!!!
   pinMode(Temperature_input, INPUT);    // from 0V (0) to 5V (1023) via PTK   (ANALOG)
 }
 //main loop/program :
@@ -236,7 +240,7 @@ void readwrite() {
   // 0 --> 0, 1023 --> 100;
   DIM = DIM_Value*100/1023;
   //equations for Fuel gauge and Temperature gauge:
-  // 703 --> 0, 1023 --> 100
+  // 703 --> 0, 1023 --> 100    BUT - GND of the pack is insulated from the circuits!!!
   BatteryPackVolt = (BatteryPackVolt_Value-703)*100/(1023-703);
   // 0 --> 0, 1023 --> 100
   Temperature = Temperature_Value*100/1023;
@@ -328,10 +332,14 @@ void readwrite() {
   } 
 // Emergence light on armature switch - relay 12
   if (EmergenceLight_Switch_ON == HIGH) {
-    digitalWrite(EmergenceLight, LOW);
+    //digitalWrite(MotorLight, LOW);
+    digitalWrite(TurnLeft, HIGH);
+    digitalWrite(TurnRight, HIGH);
     j5.setValue(100);
   } else {
-    digitalWrite(EmergenceLight, HIGH);
+    //digitalWrite(MotorLight, HIGH);
+    digitalWrite(TurnLeft, HIGH);
+    digitalWrite(TurnRight, HIGH);
     j5.setValue(0);
   }
 // Handbrake micro switch, status icon on display
@@ -407,7 +415,7 @@ void readwrite() {
     j7.setValue(0);
     }
 }
-
+//function for reading via I2C the SOC from Nano
 void receiveEvent(int howMany) {
   while (1 < Wire.available()) { // loop through all but the last
     char c = Wire.read(); // receive byte as a character

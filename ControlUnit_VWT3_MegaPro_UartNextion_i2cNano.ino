@@ -237,13 +237,13 @@ void readwrite() {
   BatteryPackVolt_Value = analogRead(BatteryPackVolt_input);
   Temperature_Value = analogRead(Temperature_input);
   
-  // 0 --> 0, 1023 --> 100;
-  DIM = DIM_Value*100/1023;
+  // 0 --> 0, 1023 --> 255;
+  DIM = DIM_Value*255/1023;
   //equations for Fuel gauge and Temperature gauge:
-  // 703 --> 0, 1023 --> 100    BUT - GND of the pack is insulated from the circuits!!!
-  BatteryPackVolt = (BatteryPackVolt_Value-703)*100/(1023-703);
-  // 0 --> 0, 1023 --> 100
-  Temperature = Temperature_Value*100/1023;
+  // 703 --> 0, 1023 --> 255    BUT - GND of the pack is insulated from the circuits!!!
+  BatteryPackVolt = (BatteryPackVolt_Value-703)*255/(1023-703);
+  // 0 --> 0, 1023 --> 255
+  Temperature = Temperature_Value*255/1023;
   
   // sending PWM singal to dash lights, temperature gauge and fuel gauge:
   analogWrite(DashLightPWM, DIM);

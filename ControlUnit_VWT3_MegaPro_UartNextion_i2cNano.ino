@@ -13,7 +13,8 @@ Dimming the dash lights with potentimeter on dashboard SWITCH1
 13.9.2018 Upddated the pin numbers for the Shield (fritzing PCB sheme), emergency lights will turn with both Relay 4 and 5 
 via 103 131 topran 12V flashing relay: pins - 49 (+12V), 49a (LOAD), 31 (GND)
 Added MotorCover microswitch Input and Motor compartment light (Output)
-Relay 12 is free, 
+Relay 12 turns the motorlights.
+30.9.2018 Updated the Output pins with shematic "EVnikola Omarca Robodyn krmilje postavitev" (VISIO)
 
 Author: Vasja Markič           
 */
@@ -31,25 +32,26 @@ Author: Vasja Markič
 #include "Nextion.h"
 
 // OUTPUTS pin declaration:
-const int ParkLight =  22;            // relay 1 - 2x front parklights, 2x back parklights, all dash lights
-const int DayLight = 18;              // relay 2 - 2x front daylights H4
-const int LongLight = 14;             // relay 3 - 2x front longlights H4
-const int TurnLeft = 11;              // relay 4 - 3x left turning lights (via flashing relay 103 131)
-const int TurnRight = 12;             // relay 5 - 3x right turning lights (via flashing relay 103 131) (both turns on via SWITCH3)
-const int StopLight = 15;             // relay 6 - 2x back stoplights
-const int Horn = 19;                 // relay 7 - to horn acuator
-const int DefrostWindow = 23;        // relay 8 - to rear window defrost
-const int BackwardLight = 25;        // relay 9 - to rear backlight(s)
-const int WiperRear = 27;           // relay 10 - motorpump rear AND motor wiper rear
-// 21, 20 reserved for I2C comm with NANO soc-meter
-const int FogLight = 29;             // relay 11 - 2x front foglights
-const int MotorLight = 31;       // relay 12 
-// 17, 16 reserved for Tx2 and Rx2 comm with Nextion display
-const int WindowWater = 30;          // relay 13 - motorpump front
-const int Wiper1Alternate = 28;      // relay 14 - via auto wiper intermittent relay to motor wiper front, timer
-// 13 reserved integrated LED       // n.c.
-const int Wiper1 = 26;               // relay 15 - wire to auto wiper intermittent relay
+const int TurnLeft = 22;             // relay 1 - 3x left turning lights (via flashing relay 103 131)
+const int TurnRight = 14;            // relay 2 - 3x right turning lights (via flashing relay 103 131) (both turns on via SWITCH3)
+const int ParkLight =  12;           // relay 3 - 2x front parklights, 2x back parklights + registar tables lights
+const int DayLight = 19;             // relay 4 - 2x front daylights H4
+const int LongLight = 25;            // relay 5 - 2x front longlights H4
+const int StopLight = 29;            // relay 6 - 2x back stoplights
+const int Horn = 30;                 // relay 7 - to horn acuator
+const int DefrostWindow = 26;        // relay 8 - to rear window defrost
+const int BackwardLight = 18;        // relay 9 - to rear backlight(s)
+const int WiperRear = 11;            // relay 10 - motorpump rear AND motor wiper rear
+const int FogLight = 15;             // relay 11 - 2x front foglights
+const int MotorLight = 23;           // relay 12 - lights when cover motor is up ...
+const int WindowWater = 27;          // relay 13 - motorpump front
+const int Wiper1Alternate = 31;      // relay 14 - via auto wiper intermittent relay to motor wiper front, timer
+const int Wiper1 = 28;               // relay 15 - wire to auto wiper intermittent relay
 const int Wiper2 = 24;               // relay 16 - wire directly to wiper motor
+// 21, 20 reserved for I2C comm with NANO soc-meter
+// 17, 16 reserved for Tx2 and Rx2 comm with Nextion display
+// 13 reserved integrated LED       // n.c.
+
 // PWM OUTUPTS (from 0 ÷ 13)
 const int DashLightPWM = 4;   // dimm dashboard lights
 const int TempGaugePWM = 3;    // drive temp. gauge

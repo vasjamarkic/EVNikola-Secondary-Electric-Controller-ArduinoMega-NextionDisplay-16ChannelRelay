@@ -15,6 +15,9 @@ via 103 131 topran 12V flashing relay: pins - 49 (+12V), 49a (LOAD), 31 (GND)
 Added MotorCover microswitch Input and Motor compartment light (Output)
 Relay 12 turns the motorlights.
 30.9.2018 Updated the Output pins with shematic "EVnikola Omarca Robodyn krmilje postavitev" (VISIO)
+4.10. 
+NAREDI DA D4PWM zasvetijo programsko ob pritisku park luči!!!!!!!!
+
 
 Author: Vasja Markič           
 */
@@ -69,7 +72,7 @@ const int EmergenceLight_Switch = 46;  //SWITCH3 (on dash)                   *+
 const int DefrostWindow_Switch = 47;   //SWITCH4 (on dash)      *+
 const int BackwardLight_Switch = 48;   // two-pole switch (2pSW) to change the drive direction! (on dash, added extra!)   *+
 const int DoorOpen_Switch = 50;        // MICROSWITCH1 (4 x doors)    *+
-const int Handbrake_Switch = 52;       // MICROSWITCH2 (handbrake)    *+
+const int Handbrake_Switch = 52;       // MICROSWITCH2 (handbrake)    *+   ----> directly to dash light!!!
 const int ChargeMode_input = 51;       // MICROSWITCH3 (when AC plug cable is IN, rezervoir tank)   *+
 const int StopLight_switch = 44;      // MICROSWITCH4 (on the brake foot)    *+
 const int WindowWater_Switch = 36;      // WHEEL SWITCH2      *****+
@@ -239,7 +242,7 @@ void readwrite() {
   BatteryPackVolt_Value = analogRead(BatteryPackVolt_input);
   Temperature_Value = analogRead(Temperature_input);
   
-  // 0 --> 0, 1023 --> 255;
+  // 830 --> 100, 1023 --> 255; ???? resistor divider - 100 Ohm and 23 Ohm pot. , 5V --> Max 5 V (1023), Min 4.06 V (830)
   DIM = DIM_Value*255/1023;
   //equations for Fuel gauge and Temperature gauge:
   // 703 --> 0, 1023 --> 255    BUT - GND of the pack is insulated from the circuits!!!

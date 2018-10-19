@@ -21,6 +21,7 @@ What was done:
 - placed wires from fuses compartment (passenger seat) to central circuit compartments (driver seat)
 - unmount fuel tank
 - bought hexagonal spacers M3 >22 mm lenght (metal or nylon) - done, but will use 16-channel relay module!!! 
+- mapping of all wires, matching with entities, dashboard, instrument board, ...
 
 by Vasja Markič,
 CEO at Elec3go Institute, SI

@@ -35,8 +35,8 @@ Author: Vasja Markič
 #include "Nextion.h"
 
 // OUTPUTS pin declaration:
-const int TurnLeft = 22;             // relay 1 - 3x left turning lights (via flashing relay 103 131)
-const int TurnRight = 14;            // relay 2 - 3x right turning lights (via flashing relay 103 131) (both turns on via SWITCH3)
+const int TurnLeft = 22;             // relay 1 - 2x left turning lights (via flashing relay 103 131)
+const int TurnRight = 14;            // relay 2 - 2x right turning lights (via flashing relay 103 131) (both turns on via SWITCH3)
 const int ParkLight =  12;           // relay 3 - 2x front parklights, 2x back parklights + registar tables lights
 const int DayLight = 19;             // relay 4 - 2x front daylights H4
 const int LongLight = 25;            // relay 5 - 2x front longlights H4
@@ -61,17 +61,17 @@ const int TempGaugePWM = 3;    // drive temp. gauge
 const int FuelGaugePWM = 2;    // drive voltage pack (ex. fuel) gauge
 
 // INPUTS:
-const int ParkLight_Switch = 49;      // SWITCH1 (on dash)      **+ --> 3x singal wires, 1x GND and 1x 5V supply
-const int DayLight_Switch = 45;       // SWITCH1 (on dash)      **+
-const int LongLight_Switch = 41;      // WHEEL SWITCH1          ****+  --> 4x signal wires and 1x 5V supply
-const int TurnLeft_Switch = 39;       // WHEEL SWITCH1          ****+
-const int TurnRight_Switch = 37;      // WHEEL SWITCH1          ****+
-const int Horn_Switch = 35;           // WHEEL SWITCH???1??    ****+
-const int FogLight_Switch = 53;        //SWITCH2 (extra added on dash)   *+
-const int EmergenceLight_Switch = 46;  //SWITCH3 (on dash)                   *+
-const int DefrostWindow_Switch = 47;   //SWITCH4 (on dash)      *+
+const int ParkLight_Switch = 49;      // SWITCH1 (on dash)                 **+ --> 3x singal wires, 1x GND and 1x 5V supply
+const int DayLight_Switch = 45;       // SWITCH1 (on dash)                 **+
+const int LongLight_Switch = 41;      // WHEEL SWITCH1 Left side           ****+  --> 4x signal wires and 1x 5V supply
+const int TurnLeft_Switch = 39;       // WHEEL SWITCH1 Right side          ****+
+const int TurnRight_Switch = 37;      // WHEEL SWITCH1 Right side          ****+
+const int Horn_Switch = 35;           // WHEEL SWITCH1 Right side (??)     ****+
+const int FogLight_Switch = 53;        //SWITCH2 (extra added on dash)        *+
+const int EmergenceLight_Switch = 46;  //SWITCH3 (on dash)                    *+
+const int DefrostWindow_Switch = 47;   //SWITCH4 (on dash)                    *+
 const int BackwardLight_Switch = 48;   // two-pole switch (2pSW) to change the drive direction! (on dash, added extra!)   *+
-const int DoorOpen_Switch = 50;        // MICROSWITCH1 (4 x doors)    *+
+const int DoorOpen_Switch = 50;        // MICROSWITCH1 (4 x doors)    *+  
 const int Handbrake_Switch = 52;       // MICROSWITCH2 (handbrake)    *+   ----> directly to dash light!!!
 const int ChargeMode_input = 51;       // MICROSWITCH3 (when AC plug cable is IN, rezervoir tank)   *+
 const int StopLight_switch = 44;      // MICROSWITCH4 (on the brake foot)    *+

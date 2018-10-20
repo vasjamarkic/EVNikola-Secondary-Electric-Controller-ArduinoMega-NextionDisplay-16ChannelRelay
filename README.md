@@ -4,12 +4,17 @@ With Arduino Mega Robodyn Mini and Nextion touch display creating controller for
 Still to do:
 - timer interupt for blinkers / or using the blinknig relay?
 - recheck the code for wipers
-- emergency stop lights with activating both turning lights
-- choose the propper fuses for actuators #1
+- emergency stop lights with activating both turning lights // problem with code when DigitalWrite is called more than once!
 - place the circuit box under the driver's seat
-- place the battery and fusses under the co-driver's seat
+- place the battery and fusses under the co-driver's seat //insulate with plastic or plexi 
 - wire the switches and microswitches in Nicola (test again the functions - wipers!!!)
-- dismount the top 
+- dismount the top dashboard
+- get the front wipers and test it
+- put the pwm module for the heating sistem. 
+- replace the mega2560 with the new one because I accidently bricked 9V to the input pin --> UART is damaged, the procesor is not communicating with pC anymore!
+- define the 2d pack of fuses for PWM, Radio, cabin lights, other.
+- install the front lights
+- wire the front
 
 What was done:
 - ordered the PCB board in Svet-elektronike (44 €), aquired.
@@ -22,6 +27,9 @@ What was done:
 - unmount fuel tank
 - bought hexagonal spacers M3 >22 mm lenght (metal or nylon) - done, but will use 16-channel relay module!!! 
 - mapping of all wires, matching with entities, dashboard, instrument board, ...
+- Put in order de Relays with his functions.
+- Choosed the fuses # for actuators 
+- updated the drawing VISIO
 
 by Vasja Markič,
 CEO at Elec3go Institute, SI

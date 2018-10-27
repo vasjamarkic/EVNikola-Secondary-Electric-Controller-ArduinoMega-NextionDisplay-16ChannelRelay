@@ -9,11 +9,13 @@ Still to do:
 - wire the switches and microswitches in Nicola (test again the functions - wipers!!!)
 - dismount the top dashboard
 - get the front wipers and test it
-- put the pwm module for the heating sistem. 
-- install the front lights
+- install the pwm module for the heating sistem. 
+- clean and test the fan - putting the electric heater ??? use a fuse for that ...
+- install the remaining front lights
 - wire the key ignition switch with f10 and f6 and to MCU and Emsiso.
-- place the wires for all dashboard switches
+- place the wires for all dashboard switches (blue and white thin wires)
 - solid the N.C. micro switch for handbrake
+- solder the white LED and resistors, make connection types and place it in the dash, via PWM output. 
 
 What was done:
 - ordered the PCB board in Svet-elektronike (44 €), aquired.

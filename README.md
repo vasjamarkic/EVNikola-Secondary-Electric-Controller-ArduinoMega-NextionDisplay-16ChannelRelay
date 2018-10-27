@@ -11,6 +11,7 @@ Still to do:
 - get the front wipers and test it
 - install the pwm module for the heating sistem. 
 - clean and test the fan - putting the electric heater ??? use a fuse for that ...
+- buy a heater (120 V DC) ??? Amazoon for 30 $ ....
 - install the remaining front lights
 - wire the key ignition switch with f10 and f6 and to MCU and Emsiso.
 - place the wires for all dashboard switches (blue and white thin wires)

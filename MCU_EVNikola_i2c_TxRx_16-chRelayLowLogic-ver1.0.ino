@@ -17,6 +17,7 @@ Relay 12 turns the motorlights.
 30.9.2018 Updated the Output pins with shematic "EVnikola Omarca Robodyn krmilje postavitev" (VISIO)
 24.10. Solved the sloow switching - using an Array for storing input states, then aktivating the logic only when the change is commited, 
 Using indexing and switch-case! Also the emergency outputs works fine now!!!
+26.10. eliminated all small errata in I/O displaying Nextion, added a graphic shiny LED!
 
 Author: Vasja Markič           
 */
@@ -34,9 +35,9 @@ Author: Vasja Markič
 #include "Nextion.h"
 
 // OUTPUTS pin declaration:
-#define TurnLeft  22             // relay 1 - 2x left turning lights (via flashing relay 103 131)
-#define TurnRight  25            // relay 2 - 2x right turning lights (via flashing relay 103 131) (both turns on via Sw3)
-#define ParkLight   18           // relay 3 - 2x front parklights, 2x back parklights + registar tables lights
+#define TurnLeft 22              // relay 1 - 2x left turning lights (via flashing relay 103 131)
+#define TurnRight 25             // relay 2 - 2x right turning lights (via flashing relay 103 131) (both - emergency stop - turns on via Sw3)
+#define ParkLight 18             // relay 3 - 2x front parklights, 2x back parklights + registratiton tables lights, PWM dashboard ON
 #define DayLight  27             // relay 4 - 2x front daylights H4
 #define LongLight  14            // relay 5 - 2x front longlights H4
 #define StopLight  29            // relay 6 - 2x back stoplights
@@ -60,35 +61,35 @@ Author: Vasja Markič
 #define FuelGaugePWM  2    // drive voltage pack (ex. fuel) gauge
 
 // INPUTS:
-#define ParkLight_Sw 49      // Sw1 (on dash)                 **+ --> 3x singal wires, 1x GND and 1x 5V supply
-#define DayLight_Sw  45       // Sw1 (on dash)                 **+
-#define LongLight_Sw  41      // WHEEL Sw1 Left side           ****+  --> 4x signal wires and 1x 5V supply
-#define TurnLeft_Sw  39       // WHEEL Sw1 Right side          ****+
-#define TurnRight_Sw  37      // WHEEL Sw1 Right side          ****+
-#define Horn_Sw  35           // WHEEL Sw1 Right side (??)     ****+
-#define FogLight_Sw  53        //Sw2 (extra added on dash)        *+
-#define EmergenceLight_Sw  46  //Sw3 (on dash)                    *+
-#define DefrostWindow_Sw  47   //Sw4 (on dash)                    *+
+#define ParkLight_Sw 49        // Sw1 (on dash)                 **+ --> 3x singal wires, 1x GND and 1x 5V supply
+#define DayLight_Sw  45        // Sw1 (on dash)                 **+
+#define LongLight_Sw  41       // WHEEL Sw1 Left side           ****+  --> 4x signal wires and 1x 5V supply
+#define TurnLeft_Sw  39        // WHEEL Sw1 Right side          ****+
+#define TurnRight_Sw  37       // WHEEL Sw1 Right side          ****+
+#define Horn_Sw  35            // WHEEL Sw1 Right side (??)     ****+
+#define FogLight_Sw  53        // Sw2 (extra added on dash)        *+
+#define EmergenceLight_Sw  46  // Sw3 (on dash)                    *+
+#define DefrostWindow_Sw  47   // Sw4 (on dash)                    *+
 #define BackwardLight_Sw  48   // two-pole Sw (2pSW) to change the drive direction! (on dash, added extra!)   *+
-#define Reserve_uSw1  50        // MICROSw1 (4 x doors)    *+  
-#define Handbrake_Sw  52       // MICROSw2 (handbrake)    *+   ----> directly to dash light!!!
-#define ChargeMode_input  51       // MICROSw3 (when AC plug cable is IN, rezervoir tank)   *+
-#define StopLight_Sw  44      // MICROSw4 (on the brake foot)    *+
-#define WindowWater_Sw  36      // WHEEL Sw2      *****+
-#define Wiper1_Sw  38           // WHEEL Sw2      *****+
-#define Wiper2_Sw  40           // WHEEL Sw2      *****+
-#define Wiper1Alternate_Sw  42  // WHEEL Sw2      *****+
-#define WiperRear_Sw  34        // WHEEL Sw2        *****+
-#define MotorCover_Sw  43         // MICROSw5 Motor Cover open/closed *+
+#define Reserve_uSw1  50       //                     *+  
+#define Handbrake_Sw  52       // uSw2 (handbrake)    *+  (!) icon on NEXTION
+#define ChargeMode_input  51   // uSw3 (when AC plug cable is IN, rezervoir tank)   *+
+#define StopLight_Sw  44       // uSw4 (on the brake foot)    *+
+#define WindowWater_Sw  36     // WHEEL Sw2      *****+
+#define Wiper1_Sw  38          // WHEEL Sw2      *****+
+#define Wiper2_Sw  40          // WHEEL Sw2      *****+
+#define Wiper1Alternate_Sw  42 // WHEEL Sw2      *****+
+#define WiperRear_Sw  34       // WHEEL Sw2      *****+
+#define MotorCover_Sw  43      // uSw5 Motor Cover open/closed *+
 
 // analoge INPUTS (from A0 ÷ A15)
-#define Battery12V_input  A1          // analog input, resistor divider 1:15 ratio with capacitor   *-+
 #define DIM_input  A0                 // potentiometer on Sw1, for dimming the dash Lights    ***-+
+#define Battery12V_input  A1          // analog input, resistor divider 1:15 ratio with capacitor   *-+
 #define BatteryPackVolt_input  A3     // analog input, 86V ÷ 125V range via resistor divider R1 = 12K, R2 = 500E --> input range 3.44V ÷ 5V   ???? (GND NOT common!)
 #define Temperature_input  A2         // depends on the PTK probe!   ???
 
 // ventilation via PWM power module
-
+// heating via high voltage heater???
 // display SOC - using existing fuel gauge (0 ÷ 6 V) reading analog IN and drive with digital PWM and MOSFET BS 170 ali BS 107.
 // display temp. motor (0 ÷ 6 V)
 
@@ -131,22 +132,24 @@ volatile double ARRAY_OLD[20];      // the loop before, for trigering an event!
 // Declaration of objects in NEXTION
 // NexProgressBar - progress bar --> value 100 (is pic1) or 0 (pic0)
 // NexButton ...
-NexProgressBar j0 = NexProgressBar(0, 1, "j0");   // day lights
-NexProgressBar j1 = NexProgressBar(0, 2, "j1");   // long lights
-NexProgressBar j2 = NexProgressBar(0, 3, "j2");   //  fog
-NexProgressBar j3 = NexProgressBar(0, 4, "j3");   //  left
-NexProgressBar j4 = NexProgressBar(0, 5, "j4");   // right
-NexProgressBar j5 = NexProgressBar(0, 6, "j5");   //  EmergenceLight
-NexProgressBar j6 = NexProgressBar(0, 7, "j6");   //  handbrake
-NexProgressBar j7 = NexProgressBar(0, 8, "j7");   //  batery low
-NexProgressBar j8 = NexProgressBar(0, 9, "j8");   //  defrozing window
-NexProgressBar j9 = NexProgressBar(0, 11, "j9");      // AC recharge lightning
-NexProgressBar j10 = NexProgressBar(0, 12, "j10");    // "Nicola" text diplay or "Charging" text display
-NexProgressBar j11 = NexProgressBar(0, 14, "j11");    // Displaying the prog. bar value of SOC, "0" empty, "100" full.
+NexProgressBar j0 = NexProgressBar(0, 3, "j0");   // day lights
+NexProgressBar j1 = NexProgressBar(0, 4, "j1");   // long lights
+NexProgressBar j2 = NexProgressBar(0, 5, "j2");   //  fog
+NexProgressBar j3 = NexProgressBar(0, 6, "j3");   //  left
+NexProgressBar j4 = NexProgressBar(0, 7, "j4");   //  right
+NexProgressBar j5 = NexProgressBar(0, 8, "j5");   //  EmergenceLight
+NexProgressBar j6 = NexProgressBar(0, 9, "j6");   //  handbrake
+NexProgressBar j7 = NexProgressBar(0, 10, "j7");   //  batery low
+NexProgressBar j8 = NexProgressBar(0, 11, "j8");   //  defrozing window
+NexProgressBar j9 = NexProgressBar(0, 12, "j9");      // AC recharge lightning
+NexProgressBar j10 = NexProgressBar(0, 13, "j10");    // "Nicola" text diplay or "Charging" text display
+NexProgressBar j11 = NexProgressBar(0, 14, "j11");    // Displaying the progress bar value of SOC, "0" empty, "100" full.
+// write here for displaying SOC value ...
 NexProgressBar j12 = NexProgressBar(0, 15, "j12");    // icon charging inside the van
 NexProgressBar j13 = NexProgressBar(0, 16, "j13");    // slider of Dimming brightness of dashboard lights
-NexProgressBar j14 = NexProgressBar(0, 17, "j14");    // Cover motor open!
-NexProgressBar j15 = NexProgressBar(0, 18, "j15");    // Backward icon on display
+NexProgressBar j14 = NexProgressBar(0, 19, "j14");    // Cover motor open!
+NexProgressBar j15 = NexProgressBar(0, 17, "j15");    // Backward icon on display
+NexProgressBar j16 = NexProgressBar(0, 20, "j16");    // PARK light
 
 // Declaration of touch events: (temp. the list is empty)
 NexTouch *nex_listen_list[] =
@@ -174,18 +177,18 @@ void setup() {
   pinMode(LongLight, OUTPUT);          // relay 5
   pinMode(StopLight, OUTPUT);          // relay 6
   pinMode(Horn, OUTPUT);               // relay 7: 1 x Horn
-  pinMode(DefrostWindow, OUTPUT);       // relay 8
-  pinMode(BackwardLight, OUTPUT);       // relay 9
+  pinMode(DefrostWindow, OUTPUT);      // relay 8
+  pinMode(BackwardLight, OUTPUT);      // relay 9
   pinMode(WiperRear, OUTPUT);          // relay 10: back wiper and watering
   pinMode(FogLight, OUTPUT);            // relay 11
-  pinMode(MotorLight, OUTPUT);      // relay 12 Lights in motor compartment
+  pinMode(MotorLight, OUTPUT);          // relay 12 Lights in motor compartment
   pinMode(WindowWater, OUTPUT);         // relay 13 motor of water pump front
   pinMode(Wiper1Alternate, OUTPUT);     // relay 14
   pinMode(Wiper1, OUTPUT);              // relay 15
   pinMode(Wiper2, OUTPUT);              // relay 16 
-  pinMode(DashLightPWM, OUTPUT);          // to MOSFET 1  drives dash lights via RELAY 1 (5 V), mosfet driven with 12 V
-  pinMode(TempGaugePWM, OUTPUT);          // to MOSFET 2  drives tempertature GAUGE (6 V), mosfet driven on 12 V
-  pinMode(FuelGaugePWM, OUTPUT);          // to MOSFET 3 drives fuel GAUGE (6 V), mosfet driven on 12 V
+  pinMode(DashLightPWM, OUTPUT);        // to MOSFET 1  drives dash lights via RELAY 1 (5 V), mosfet driven with 12 V
+  pinMode(TempGaugePWM, OUTPUT);        // to MOSFET 2  drives tempertature GAUGE (6 V), mosfet driven on 12 V
+  pinMode(FuelGaugePWM, OUTPUT);        // to MOSFET 3 drives fuel GAUGE (6 V), mosfet driven on 12 V
   
 // INPUTS:
   pinMode(ParkLight_Sw, INPUT);
@@ -194,7 +197,7 @@ void setup() {
   pinMode(TurnLeft_Sw, INPUT);   
   pinMode(TurnRight_Sw, INPUT);  
   pinMode(StopLight_Sw, INPUT);    // foot pedal microbutton
-  pinMode(Horn_Sw, INPUT);        // steering wheel button
+  pinMode(Horn_Sw, INPUT);         // steering wheel button
   pinMode(DefrostWindow_Sw, INPUT); 
   pinMode(BackwardLight_Sw, INPUT);     // Two-poles Sw 
   pinMode(WiperRear_Sw, INPUT);  
@@ -208,21 +211,22 @@ void setup() {
   pinMode(Wiper1_Sw, INPUT);  // speed 1
   pinMode(Wiper2_Sw, INPUT);  // speed 2 
   pinMode(ChargeMode_input, INPUT); // if the AC cable is pludged
-  pinMode(Battery12V_input, INPUT); // analog measurment of voltage 0 ÷ 12 V - wire a voltage divider with resistors 81.3k + (8.25k || 100nF)
-  pinMode(DIM_input, INPUT);    // dimming with trimmer on Sw1 (lights), 0 - 5V (1023) LCD brightness    (ANALOG)
+  pinMode(Battery12V_input, INPUT); // ANALOG measurment of voltage 0 ÷ 12 V - wire a voltage divider with resistors 81.3k + (8.25k || 100nF)
+  pinMode(DIM_input, INPUT);    // dimming with trimmer on Sw1 (lights), 0 - 5V (1023), could also trim the LCD brightness (ANALOG)
   pinMode(BatteryPackVolt_input, INPUT);   // range from 3.44V (703) to 5V (1023)   (ANALOG)  // GNDs must be separated!!!
   pinMode(Temperature_input, INPUT);    // from 0V (0) to 5V (1023) via PTK   (ANALOG)
   
   relayOFF();       //sets all relay to OFF!
+  testDisplay();     // test all the icons for 0.5 sec
 }
 //***************************************************************************************************
 //main loop/program :
 void loop() {  
   readDigital();      // reading the input states into an ARRAY
-  readAnalog();
+  readAnalog();       // reading the input ANALOG 
   equations();
-  writeDigital();    //Solved with ACTION if change in switches! Used Switch-Case
-  writeAnalog();
+  writeDigital();    //Solved with software interrupt - if change in switches! Used Switch-Case
+  writeAnalog();    
   nexLoop(nex_listen_list);    // reading the touch events on NEXTION display (curently not used)
 }
 //*********************************************************************************************
@@ -232,9 +236,9 @@ void readDigital() {
 // read the state of the inputs and store it in a Array size 20
 
   for (int i = 0; i < 20; i++) {
-  ARRAY_OLD[i]=ARRAY[i];
+  ARRAY_OLD[i]=ARRAY[i];        // store the last data to the ARRAY_OLD.
   }
-  ARRAY[0] = digitalRead(TurnLeft_Sw);
+  ARRAY[0] = digitalRead(TurnLeft_Sw);     //New readings and storing in ARRAY
   ARRAY[1] = digitalRead(TurnRight_Sw);
   ARRAY[2] = digitalRead(ParkLight_Sw);
   ARRAY[3] = digitalRead(DayLight_Sw);
@@ -258,9 +262,9 @@ void readDigital() {
  
 //******************************************************************************************
 void writeDigital() {
-  if (ARRAY != ARRAY_OLD) {              // switch activated?
+  if (ARRAY != ARRAY_OLD) {              // if any switch activated, one of the digit is different, compare the OLD and NEW ARRAY
     for (int i = 0; i < 20; i++) {       // check all inputs in the array
-    if (ARRAY_OLD[i]!=ARRAY[i]){          // when finded, change the status!
+    if (ARRAY_OLD[i]!=ARRAY[i]){          // when found the index (changed input), change the status!
       switch (i) {
         case 0:                         // turn left
         j3.setValue(ARRAY[i]*100);
@@ -272,8 +276,9 @@ void writeDigital() {
         break;
         case 2:                           // park light
         digitalWrite(ParkLight, !ARRAY[i]);
+        j16.setValue(ARRAY[i]*100);
         // set PWM D4 LED cockpit ON DIM Value in the function writeAnalog()
-        //analogWrite(DashLightPWM,!ARRAY[i]*DIM);
+        //analogWrite(DashLightPWM,!ARRAY[i]*DIM); --> into the writeAnalog() function
         break;
         case 3:                         // day lights
         j0.setValue(ARRAY[i]*100);
@@ -294,7 +299,7 @@ void writeDigital() {
         case 7:                          // CHARGE mode input
         j9.setValue(ARRAY[i]*100);   //Strela
         j10.setValue(!ARRAY[i]*100);   // Show "charging" 
-        j12.setValue(!ARRAY[i]*100);    // icon charging
+        j12.setValue(ARRAY[i]*100);    // icon charging
         break;
         case 8:                       // HORN
         digitalWrite(Horn, !ARRAY[i]);
@@ -313,7 +318,7 @@ void writeDigital() {
         case 12:                          // RESERVE uSw1
         break;
         case 13:                          // Motor cover - light back motor compartment
-        j4.setValue(ARRAY[i]*100);
+        j14.setValue(ARRAY[i]*100);
         digitalWrite(MotorLight, !ARRAY[i]);
         break;
         case 14:                        // Handbrake
@@ -418,4 +423,42 @@ void relayOFF() {
   digitalWrite(Wiper1Alternate, HIGH);
   digitalWrite(Wiper1, HIGH);
   digitalWrite(Wiper2, HIGH);
+  }
+
+void testDisplay() {
+  j0.setValue(100);
+  j1.setValue(100);
+  j2.setValue(100);
+  j3.setValue(100);
+  j4.setValue(100);
+  j5.setValue(100);
+  j6.setValue(100);
+  j7.setValue(100);
+  j8.setValue(100);
+  j9.setValue(100);
+  j10.setValue(0); 
+  j11.setValue(100);
+  j12.setValue(100);
+  j13.setValue(100);
+  j14.setValue(100);
+  j15.setValue(100);
+  j16.setValue(100);
+  delay(500);
+   j0.setValue(0);
+  j1.setValue(0);
+  j2.setValue(0);
+  j3.setValue(0);
+  j4.setValue(0);
+  j5.setValue(0);
+  j6.setValue(0);
+  j7.setValue(0);
+  j8.setValue(0);
+  j9.setValue(0);
+  j10.setValue(100); 
+  j11.setValue(0);
+  j12.setValue(0);
+  j13.setValue(0);
+  j14.setValue(0);
+  j15.setValue(0);
+  j16.setValue(0);
   }

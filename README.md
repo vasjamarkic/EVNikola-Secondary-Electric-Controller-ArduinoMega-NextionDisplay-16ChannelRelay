@@ -10,9 +10,10 @@ Still to do:
 - dismount the top dashboard
 - get the front wipers and test it
 - put the pwm module for the heating sistem. 
-- define the 2d pack of fuses for PWM, Radio, cabin lights, other.
 - install the front lights
-- 
+- wire the key ignition switch with f10 and f6 and to MCU and Emsiso.
+- place the wires for all dashboard switches
+- solid the N.C. micro switch for handbrake
 
 What was done:
 - ordered the PCB board in Svet-elektronike (44 €), aquired.
@@ -32,6 +33,10 @@ What was done:
 - replaced the mega2560 with the new one because I accidently bricked 12V to the input pin --> UART is damaged, the procesor is not   
   communicating with pC anymore!
 - wired the front-mask! 
+- defined the 2d pack of fuses for PWM, Radio, cabin lights, other, Emsiso controller
+- wired the wires and second fuse unit (f11 ÷ f16)
+- placed wires from second pack fuses (f11 ÷ f16) to dashboard
+- 
 
 
 by Vasja Markič,

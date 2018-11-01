@@ -2,9 +2,9 @@
 With Arduino Mega Robodyn Mini and Nextion touch display creating controller for lights and other actuators in VW T3.
 
 Still to do:
-- using the blinknig relay
+- 
 - recheck the code for wipers
-- place the circuit box under the driver's seat
+- 
 - place the battery and fusses under the co-driver's seat //insulate with plastic or plexi 
 - wire the switches and microswitches in Nicola (test again the functions - wipers!!!)
 - dismount the top dashboard
@@ -13,8 +13,7 @@ Still to do:
 - clean and test the fan - putting the electric heater ??? use a fuse for that ...
 - buy a heater (120 V DC) ??? Amazoon for 30 $ ....
 - install the remaining front lights
-- wire the key ignition switch with f10 and f6 and to MCU and Emsiso.
-- place the wires for all dashboard switches (blue and white thin wires)
+- wire the key ignition switch with f16 and to Emsiso.
 - solid the N.C. micro switch for handbrake
 - solder the white LED and resistors, make connection types and place it in the dash, via PWM output. 
 
@@ -39,8 +38,10 @@ What was done:
 - defined the 2d pack of fuses for PWM, Radio, cabin lights, other, Emsiso controller
 - wired the wires and second fuse unit (f11 ÷ f16)
 - placed wires from second pack fuses (f11 ÷ f16) to dashboard
-- 
-
+- blinknig relay working
+- placed the circuit box under the driver's seat
+- wired the key ignition switch with fuse f10 to MCU.
+- placed the wires for all dashboard switches (blue and white thin wires)
 
 by Vasja Markič,
 CEO at Elec3go Institute, SI

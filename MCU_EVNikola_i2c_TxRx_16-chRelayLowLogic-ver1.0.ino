@@ -372,7 +372,7 @@ void writeDigital() {
 void writeAnalog() {
   analogWrite(FuelGaugePWM, BatteryPackVolt);   // wire to gauge fuel
   analogWrite(TempGaugePWM, Temperature);       // wire to Temp. gauge. 
-  analogWrite(DashLightPWM,!ARRAY[2]*DIM);      //the third field in the array is ParkLight input switch.
+  analogWrite(DashLightPWM, ARRAY[2]*DIM);      //the third field in the array is ParkLight input switch.
   }
   
 void readAnalog() {
@@ -402,7 +402,7 @@ void receiveEvent(int howMany) {
     //Serial.print(c);         // print the character
   }
   SOC2 = Wire.read();    // receive byte as an integer
-  Serial.println(SOC2);         // print the integer
+  //Serial.println(SOC2);         // print the integer
 }
 
 // set all relay OFF - for begin sequence!
